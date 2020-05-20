@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- #
 import numpy as np
 import cv2
 
@@ -20,6 +21,9 @@ def faceDetect():
     while(True):
 
         ret, frame = cap.read()
+        if not ret:
+            break
+        
         # 얼굴과 눈을 검출할 그레이스케일 이미지를 준비
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
