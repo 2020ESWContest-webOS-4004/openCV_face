@@ -66,22 +66,28 @@ while True:
 
             landmarks = np.matrix([[p.x , p.y] for p in predictor(frame, rect).parts()])
 
+            # 왼쪽 눈의 랜드마크 범위 설정
             left_eye = landmarks[LEFT_EYE_POINTS]
+            # 오른쪽 눈의 랜드마크 범위 설정
             right_eye = landmarks[RIGHT_EYE_POINTS]
 
+            # 눈 부위를 위한 랜드마크를 시각화하는 핸들러 구현
             left_eye_hull = cv2.convexHull(left_eye)
             right_eye_hull = cv2.convexHull(right_eye)
-
             cv2.drawContours(frame, [left_eye_hull], -1, (0, 255, 0), 1)
             cv2.drawContours(frame, [right_eye_hull], -1, (0, 255, 0), 1)
+
 
             ear_left = eye_aspect_ratio(left_eye)
             ear_right = eye_aspect_ratio(right_eye)
             ear_avg = (ear_left + ear_right) / 2.0
             
+            # 임계값 이하로 눈꺼플의 위치가 변경되면 눈 감은것이라 인식
             if ear_avg < EYE_AR_THRESH:
                 alarm = time.time()
-                
+
+                # 눈 감고 있는 시간이 1초가 지나면
+                # Wake up Man이라는 문구를 출력 (나중엔 알람으로 변경 예정)
                 if alarm > 1 :
                     COUNTER += 1
                     if COUNTER >= 5 :
