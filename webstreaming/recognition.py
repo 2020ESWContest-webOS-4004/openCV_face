@@ -85,13 +85,13 @@ class FaceRecognition:
             #detected pic transform to grayscale
             face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
             #training model try predict
-            id, result = model.predict(face)
+            result = model.predict(face)
             #result[1] is confidence and close to 0
             #this mean registered user
            # print(datalist[result[0]])
-            found = 0
-            if result < 500:
-                confidence = int(100*(1-(result)/300))
+            
+            if result[1] < 500:
+                confidence = int(100*(1-(result[1])/300))
                 # display confidence
                 display_string = str(confidence)+'% Confidence'
 
@@ -99,15 +99,12 @@ class FaceRecognition:
             
             #over 75 same persone return UnLocked! 
             if confidence > 75:
-                found = 1
-                face_found(found)
                 cv2.putText(frame, " Unlocked", (0, 700), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
                 ret, jpeg = cv2.imencode('.jpg', frame)
                 return jpeg.tobytes()
                 
             else:
-                found = -1
-                face_found(found)
+
                 #under 75 other person return Locked!!! 
                 cv2.putText(frame, "Locked", (0, 700), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
                 ret, jpeg = cv2.imencode('.jpg', frame)

@@ -8,6 +8,8 @@ import pickle
 
 #얼굴 인식용 xml 파일 
 face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
+#모델 생성 
+model = cv2.face.LBPHFaceRecognizer_create()
 
 class FaceGetData:
     def __init__(self):
@@ -16,7 +18,6 @@ class FaceGetData:
         self.img_name_match = {}
         self.basic_file_path=[]
         self.train_file_path=[]
-
     #전체 사진에서 얼굴 부위만 잘라 리턴
 
     def face_extractor(self, img):
@@ -99,14 +100,13 @@ if __name__ =="__main__":
 
     data_path = a.basic_file_path
     onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
-    train_path = 'trainer/'
+    train_path = 'trainer/personal'
     countfolder = [f for f in listdir(train_path) if isfile(join(train_path,f))]
-    
     print(len(countfolder))
     if len(countfolder) == 0:
         icount = 0
     else :
-        icount = len(countfolder)
+        icount = len(countfolder)-1
 
     Training_Data, Labels= [], []
 
@@ -121,19 +121,18 @@ if __name__ =="__main__":
         Training_Data.append(np.asarray(images, dtype=np.uint8))
         #Labels 리스트엔 카운트 번호 추가 
         Labels.append(icount)
-
+        #Labels를 32비트 정수로 변환
+        #Labels = np.asarray(Labels, dtype=np.int32)
+        
+        
     #훈련할 데이터가 없다면 종료.
     if len(Labels) == 0:
         print("There is no data to train.")
         exit()
-    print(Labels)
-    #Labels를 32비트 정수로 변환
-    Labels = np.asarray(Labels, dtype=np.int32)
-    #모델 생성 
-    model = cv2.face.LBPHFaceRecognizer_create()
     #학습 시작 
-    model.train(np.asarray(Training_Data), np.asarray(Labels))
-    model.write('trainer/'+data_path.split('/')[2]+'.yml')
+    model.train(np.asarray(Training_Data), np.array(Labels))
+    model.write('trainer/personal/'+data_path.split('/')[2]+'.yml')
+    model.write('trainer/face_train.yml')
     tp='trainer/'+data_path.split('/')[2]+'.yml'
     a.saveTrainName(name, tp)
     a.saveImgName(name,icount)
