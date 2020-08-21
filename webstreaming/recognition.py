@@ -20,9 +20,10 @@ with open('img_name_match.pickle', 'rb') as fr:
         except EOFError:
             break
         datalist.append(data)
-labels = ['jh', 'sh']
+
 onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
 print(onlyfiles)
+
 for i in onlyfiles:
     only = os.path.splitext(i)[-1]
     if only == '.yml':
@@ -65,15 +66,6 @@ class FaceRecognition:
             break
         return frame, face
 
-    def face_found(self, i):
-        if i == 1:
-            found = 333
-            print(found)
-            return found
-        else:
-            found = 444
-            return found
-
     def get_frame(self):
         # get video data from camera 
         ret, frame = self.video.read()
@@ -89,7 +81,7 @@ class FaceRecognition:
             #result[1] is confidence and close to 0
             #this mean registered user
            # print(datalist[result[0]])
-            
+            print(result[0])
             if result[1] < 500:
                 confidence = int(100*(1-(result[1])/300))
                 # display confidence

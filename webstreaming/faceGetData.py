@@ -133,7 +133,7 @@ if __name__ =="__main__":
     model.train(np.asarray(Training_Data), np.array(Labels))
     model.write('trainer/personal/'+data_path.split('/')[2]+'.yml')
     model.write('trainer/face_train.yml')
-    tp='trainer/'+data_path.split('/')[2]+'.yml'
+    tp='trainer/personal'+data_path.split('/')[2]+'.yml'
     a.saveTrainName(name, tp)
     a.saveImgName(name,icount)
     print("Model Training Complete!!!!!")
