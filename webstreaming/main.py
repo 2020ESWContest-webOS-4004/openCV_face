@@ -16,13 +16,22 @@ def gen(recognition):
     while True:
         #get camera frame
         frame = recognition.get_frame()
-        yield (b'--frame\r\n'
-                + b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        
+        yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+def gen_face_result(recognition):
+    re = recognition.face_result
+    print(re)
+
 
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(FaceRecognition()), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@socketio.on('my event')
+def test_message(message):
+    emit('my response', {'data' : 'got it!'})
+    
 if __name__ == '__main__':
     # defining server ip address and port
     socketio.run(app,host='0.0.0.0',port='5000')
