@@ -1,3 +1,11 @@
+#**
+#*  service         :   recognition.py
+#*  type            :   python
+#*  date            :   2020.09.03
+#*  author          :   한지훈(RORA)
+#*  description     :   사용자 얼굴 인식 및 판별 프로그램
+#**
+
 # -*- coding: utf-8 -*- #
 import re
 import cv2
