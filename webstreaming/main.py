@@ -1,3 +1,11 @@
+#**
+#*  service         :   main.py
+#*  type            :   python
+#*  date            :   2020.09.03
+#*  author          :   한지훈(RORA)
+#*  description     :   플라스크 서버
+#**
+
 from flask import Flask, render_template, Response, request
 from flask_socketio import SocketIO, emit, send
 # from camera import VideoCamera
