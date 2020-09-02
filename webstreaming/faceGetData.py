@@ -1,3 +1,11 @@
+#**
+#*  service         :   faceGetData.py
+#*  type            :   python
+#*  date            :   2020.09.03
+#*  author          :   한지훈(RORA)
+#*  description     :   사용자 얼굴 메타 데이터 생성 프로그램
+#**
+
 # -*- coding: utf-8 -*- #
 import cv2
 import numpy as np
