@@ -21,13 +21,12 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 host = '0.0.0.0'
 port = '5000'
-found = []
+found = 0
 
 @app.route('/')
 def index():
     # rendering webpage
     return render_template('index.html')
-
 
 def messageReceived(methods=['GET', 'POST']):
     print('message was received!!!')
@@ -46,20 +45,15 @@ def face_result(result):
 def gen(recognition):
     while True:
         #get camera frame
+        global found
         frame, f = recognition.get_frame()
         found = recognition.face_found(f)
-        #send_data(face_result(found))
         yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
     
 
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(FaceRecognition()), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/')
-def video_result():
-    return Response(gen_face(FaceRecognition()))
-
 
 if __name__ == '__main__':
     # defining server ip address and port
