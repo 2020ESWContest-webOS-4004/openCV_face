@@ -5,12 +5,40 @@
 			img { 
         display: block; 
         margin: 0px auto; 
+        width:70%;
+        top : 30%
       }
-		</style>
+      h1 {
+        text-align: left;
+      }
+    </style>
   </head>
   <body>
-    <h1>Pi Face Recognition</h1>
-    <img src="{{ url_for('video_feed') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script type="text/javascript" charest="utf-8">
+      var socket = io.connect('http://'+document.domain + ':' + location.port);
+      socket.on( 'connect', function() {
+        socket.emit( 'my event', {
+          data: 'User Connected'
+        })
+      })
+
+    // 받은 메시지
+      socket.on( 'my response', function( msg ) {
+        console.log( msg )
+        /* if( typeof msg.user_name !== 'undefined' ) {
+          $( 'h3' ).remove()
+          $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>' )
+        } */
+      }) 
     </script>
+
+
+    <img imgframe src="{{ url_for('video_feed') }}">
+    <p></p>
+    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+    <div class="message_holder"></div>
+    
   </body>
 </html>
