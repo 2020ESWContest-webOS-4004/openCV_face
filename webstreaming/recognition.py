@@ -20,24 +20,19 @@ datalist=[]
 ymlList=[]
 descs = {}
 model = cv2.face.LBPHFaceRecognizer_create()
-data_path = 'trainer/personal/'
-with open('img_name_match.pickle', 'rb') as fr:
-    nameList = []
-    while True:
-        try:
-            data = pickle.load(fr)
-        except EOFError:
-            break        
-        for i in data:
-            nameList.append(i)
+train_path = 'trainer/personal'
 
+countfolder = [f for f in listdir(train_path) if isfile(join(train_path,f))]
+if len(countfolder) == 0:
+    icount = 0
+else :
+    icount = len(countfolder)
+
+data_path = 'trainer/personal/'
 onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
-print(onlyfiles)
 
 for i in onlyfiles:
-    print(i)
     model.read(data_path+i)
-        
 
 face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 ds_factor=0.6
@@ -47,8 +42,9 @@ class FaceRecognition:
         #capturing video
         self.video = cv2.VideoCapture(0)
         self.found = []
-        self.count1 = 0 
-        self.count2 = 0
+        self.a = 0 
+        self.b = 0
+        self.c = 0 
         self.nameList = []
         self.face_result = 0
 
@@ -64,33 +60,8 @@ class FaceRecognition:
                 except EOFError:
                     break
                 for i in data:
-                    nameList.append(i)
-        return nameList
-
-    def face_found(self, face):
-        if face != 0:
-            self.found.append(face)
-            if len(self.found) < 20:
-                for i in self.found:
-                    if i == 1:
-                        self.count1 = self.count1 + 1
-                    else :
-                        self.count2 = self.count2 + 1 
-                
-                if self.count1 >= self.count2 :
-                    self.face_result = 555
-                    return self.face_result
-                else :
-                    self.face_result = 333
-                    return self.face_result
-            else :
-                pass
-        elif face == 0:
-            self.found.append(face)
-            if len(self.found) == 10:
-                self.face_result = 111
-                return self.face_result
-        
+                    self.nameList.append(i)
+        return self.nameList
 
     def face_detector(self, frame):
         gray=cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -98,12 +69,30 @@ class FaceRecognition:
 
         if face_rects == ():
             return frame, [] 
+
         for(x,y,w,h) in face_rects:
             cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,255),2)
             face = frame[y:y+h, x:x+w]
             face = cv2.resize(face, (200,200))
             break
         return frame, face
+        
+    def face_found(self, face):
+        self.found.append(face)
+        for i in self.found:
+            if i == 1:
+                self.a += 1
+            elif i == 2 :
+                self.b += 1 
+
+        if len(self.found) == 40:
+            if self.a >= self.b :
+                self.face_result = 555
+            else:
+                self.face_result = 333
+
+        if self.face_result != None:
+            return self.face_result
 
     def get_frame(self):
         # get video data from camera 
@@ -120,9 +109,10 @@ class FaceRecognition:
             face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
             #training model try predict
             id, result = model.predict(face)
+            #result is confidence and close to 0
             #this mean registered user
             label = nameDataList[id]
-
+            
             if result < 500:
                 confidence = int(100*(1-(result)/300))
                 # display confidence
@@ -133,7 +123,6 @@ class FaceRecognition:
             #over 75 same persone return UnLocked! 
             if confidence > 75:
                 facefound = 1
-                #test = self.face_found(facefound)
                 cv2.putText(frame, label + " Unlocked", (0, 700), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
                 ret, jpeg = cv2.imencode('.jpg', frame)
                 return jpeg.tobytes(), facefound
@@ -141,7 +130,6 @@ class FaceRecognition:
             else:
                 #under 75 other person return Locked!!! 
                 facefound = 2
-                #test = self.face_found(facefound)
                 cv2.putText(frame, "Locked", (0, 700), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
                 ret, jpeg = cv2.imencode('.jpg', frame)
                 return jpeg.tobytes(), facefound
