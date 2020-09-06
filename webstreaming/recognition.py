@@ -1,7 +1,7 @@
 #**
 #*  service         :   recognition.py
-#*  type            :   python
-#*  date            :   2020.09.03
+#*  type            :   python3
+#*  date            :   2020.09.06
 #*  author          :   한지훈(RORA)
 #*  description     :   사용자 얼굴 인식 및 판별 프로그램
 #**
