@@ -1,7 +1,7 @@
 #**
 #*  service         :   faceGetData.py
 #*  type            :   python3
-#*  date            :   2020.09.06
+#*  date            :   2020.09.14
 #*  author          :   한지훈(RORA)
 #*  description     :   사용자 얼굴 메타 데이터 생성 프로그램
 #**
@@ -13,6 +13,9 @@ import os
 from os import listdir
 from os.path import isfile, join
 import pickle
+import json
+from PIL import Image
+
 
 #얼굴 인식용 xml 파일 
 face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
@@ -32,7 +35,7 @@ class FaceGetData:
         #흑백처리 
         self.gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         #얼굴 찾기 
-        self.faces = face_classifier.detectMultiScale(self.gray,1.3,5)
+        self.faces = face_classifier.detectMultiScale(self.gray, 1.3, 5)
         #찾은 얼굴이 없으면 None으로 리턴 
         if self.faces ==():
             return None
@@ -106,51 +109,83 @@ if __name__ =="__main__":
     cv2.destroyAllWindows()
     print('Colleting Samples Complete!!!')
 
+    #faces폴더에 있는 파일 리스트 얻기
     data_path = a.basic_file_path
     onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
+    #trainer/personal에 있는 파일 갯수 얻기
     train_path = 'trainer/personal'
     countfolder = [f for f in listdir(train_path) if isfile(join(train_path,f))]
-    print(len(countfolder))
+    
     if len(countfolder) == 0:
         icount = 0
     else :
-        icount = len(countfolder)-1
+        icount = len(countfolder)
 
-    Training_Data, Labels= [], []
+    #데이터와 매칭될 라벨 변수
+    Training_Data, IDs= [], []
 
+    #파일 개수만큼 루프
     for i, files in enumerate(onlyfiles):    
         image_path = data_path + onlyfiles[i]
-        #이미지 불러오기 
+        #이미지 불러오기
         images = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         #이미지 파일이 아니거나 못 읽어 왔다면 무시
         if images is None:
             continue    
         #Training_Data 리스트에 이미지를 바이트 배열로 추가 
-        Training_Data.append(np.asarray(images, dtype=np.uint8))
-        #Labels 리스트엔 카운트 번호 추가 
-        Labels.append(icount)
-        #Labels를 32비트 정수로 변환
-        #Labels = np.asarray(Labels, dtype=np.int32)
-        
-        
+        Training_Data.append(np.array(images, dtype=np.uint8))
+        #IDs 리스트엔 카운트 번호 추가 
+        IDs.append(icount)
+           
     #훈련할 데이터가 없다면 종료.
-    if len(Labels) == 0:
+    if len(IDs) == 0:
         print("There is no data to train.")
         exit()
-    #학습 시작 
-    model.train(np.asarray(Training_Data), np.array(Labels))
+
+    #IDs를 32비트 정수로 변환
+    IDs = np.asarray(IDs, dtype=np.int32)
+    #학습 시작
+    model.train(np.asarray(Training_Data), IDs)
+    #개인 .yml 파일 생성
     model.write('trainer/personal/'+data_path.split('/')[2]+'.yml')
+    #전체 .yml 파일 생성
     model.write('trainer/face_train.yml')
     tp='trainer/personal'+data_path.split('/')[2]+'.yml'
     a.saveTrainName(name, tp)
     a.saveImgName(name,icount)
     print("Model Training Complete!!!!!")
 
-with open('img_name_match.pickle','a+b') as fw:
-    pickle.dump(a.img_name_match, fw)
+"""     import pymysql
 
-with open('img_train_path.pickle','a+b') as fw:
-    pickle.dump(a.img_train_path, fw)
+    conn = pymysql.connect(host='', user='', password='', db='' ,charset='utf8') #DB 연결
+    cur = conn.cursor(pymysql.cursors.DictCursor) #디폴트 커서 생성
 
-with open('name_path.pickle','a+b') as fw:
-    pickle.dump(a.name_path, fw)
+    sql = "INSERT INTO bio_auth (jarvis_member_id,image_path,yml) VALUES (%s ,%s, %s);"
+    val = (name, a.basic_file_path,'trainer/personal/' + data_path.split('/')[2]+'.yml')
+    cur.execute(sql, val)
+    
+    conn.commit() """
+    print('rowcount: ', cur.rowcount)
+
+    conn.close() 
+
+    #각 이미지 이름 및 경로에 대한 정보 파일로 저장
+    with open('img_name_match.pickle','a+b') as fw:
+        pickle.dump(a.img_name_match, fw)
+
+    with open('img_train_path.pickle','a+b') as fw:
+        pickle.dump(a.img_train_path, fw)
+
+    with open('name_path.pickle','a+b') as fw:
+        pickle.dump(a.name_path, fw)
+
+    with open('name.json', 'r') as json_file:
+        json_data = json.load(json_file)
+
+        json_data['info'].append({
+            'id' : icount,
+            'name' : name
+        })
+
+    with open('name.json', 'w', encoding="utf-8") as outfile:
+        json.dump(json_data, outfile, indent=4)
