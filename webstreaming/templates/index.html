@@ -12,12 +12,13 @@
         text-align: left;
       }
     </style>
-  </head>
-  <body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+
     <script type="text/javascript" charest="utf-8">
-      var socket = io.connect('http://'+document.domain + ':' + location.port);
+      var socket = io();
       socket.on( 'connect', function() {
         socket.emit( 'my event', {
           data: 'User Connected'
@@ -32,13 +33,17 @@
           $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>' )
         } */
       }) 
+      function test() {
+        socket.emit('my event',  {data : 'test'})
+      }; 
     </script>
 
+    <input type="button" onclick="test" >
 
-    <img imgframe src="{{ url_for('video_feed') }}">
+    <img src="{{ url_for('video_feed') }}">
     <p></p>
     <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
-    <div class="message_holder"></div>
+    <div class="message_holder" ></div>
     
   </body>
 </html>
