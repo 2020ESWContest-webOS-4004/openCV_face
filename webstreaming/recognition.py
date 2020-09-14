@@ -1,7 +1,7 @@
 #**
 #*  service         :   recognition.py
 #*  type            :   python3
-#*  date            :   2020.09.06
+#*  date            :   2020.09.14
 #*  author          :   한지훈(RORA)
 #*  description     :   사용자 얼굴 인식 및 판별 프로그램
 #**
@@ -15,10 +15,8 @@ from os import listdir
 from os.path import isfile, join
 import glob
 import pickle
+import json
 
-datalist=[]
-ymlList=[]
-descs = {}
 model = cv2.face.LBPHFaceRecognizer_create()
 train_path = 'trainer/personal'
 
@@ -28,11 +26,14 @@ if len(countfolder) == 0:
 else :
     icount = len(countfolder)
 
-data_path = 'trainer/personal/'
+""" data_path = 'trainer/personal/'
 onlyfiles = [f for f in listdir(data_path) if isfile(join(data_path,f))]
 
 for i in onlyfiles:
-    model.read(data_path+i)
+    model.read(data_path+i) """
+
+data_path = 'trainer/face_train.yml'
+model.read(data_path)
 
 face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
 ds_factor=0.6
@@ -42,9 +43,6 @@ class FaceRecognition:
         #capturing video
         self.video = cv2.VideoCapture(0)
         self.found = []
-        self.a = 0 
-        self.b = 0
-        self.c = 0 
         self.nameList = []
         self.face_result = 0
 
@@ -60,7 +58,7 @@ class FaceRecognition:
                 except EOFError:
                     break
                 for i in data:
-                    self.nameList.append(i)
+                    self.nameList.append(i)           
         return self.nameList
 
     def face_detector(self, frame):
@@ -76,23 +74,6 @@ class FaceRecognition:
             face = cv2.resize(face, (200,200))
             break
         return frame, face
-        
-    def face_found(self, face):
-        self.found.append(face)
-        for i in self.found:
-            if i == 1:
-                self.a += 1
-            elif i == 2 :
-                self.b += 1 
-
-        if len(self.found) == 40:
-            if self.a >= self.b :
-                self.face_result = 555
-            else:
-                self.face_result = 333
-
-        if self.face_result != None:
-            return self.face_result
 
     def get_frame(self):
         # get video data from camera 
@@ -102,8 +83,7 @@ class FaceRecognition:
         # try face detect
         frame,face = self.face_detector(frame)
         nameDataList = self.get_pickle('img_name_match.pickle')
-        facefound = 0
-
+        
         try:
             #detected pic transform to grayscale
             face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
@@ -122,22 +102,21 @@ class FaceRecognition:
             
             #over 75 same persone return UnLocked! 
             if confidence > 75:
-                facefound = 1
                 cv2.putText(frame, label + " Unlocked", (0, 700), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
                 ret, jpeg = cv2.imencode('.jpg', frame)
-                return jpeg.tobytes(), facefound
+                return jpeg.tobytes(), label
                 
             else:
+                label = '' 
                 #under 75 other person return Locked!!! 
-                facefound = 2
                 cv2.putText(frame, "Locked", (0, 700), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
                 ret, jpeg = cv2.imencode('.jpg', frame)
-                return jpeg.tobytes(), facefound
+                return jpeg.tobytes(), label
                 
         except:
+            label = ''
             #not face recognition 
-            facefound = 0
             cv2.putText(frame, "Face Not Found", (0, 700), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 10, 10), 2)
             ret, jpeg = cv2.imencode('.jpg', frame)
-            return jpeg.tobytes(), facefound
+            return jpeg.tobytes(), label
             pass
