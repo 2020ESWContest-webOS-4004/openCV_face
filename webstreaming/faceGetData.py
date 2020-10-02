@@ -1,7 +1,7 @@
 #**
 #*  service         :   faceGetData.py
 #*  type            :   python3
-#*  date            :   2020.09.14
+#*  date            :   2020.10.03
 #*  author          :   한지훈(RORA)
 #*  description     :   사용자 얼굴 메타 데이터 생성 프로그램
 #**
@@ -15,7 +15,6 @@ from os.path import isfile, join
 import pickle
 import json
 from PIL import Image
-
 
 #얼굴 인식용 xml 파일 
 face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
@@ -66,7 +65,7 @@ class FaceGetData:
         self.img_name_match[name] = count
 
     def inputName(self):
-        self.name = input('input your name : ')
+        self.name = input('input your jarvis ID : ')
         return self.name 
 
 if __name__ =="__main__":
@@ -75,7 +74,7 @@ if __name__ =="__main__":
     a.createFolder('./faces/'+name)
     #얼굴 사진 데이터 저장 폴더 경로
     a.basic_file_path = a.savePath(name)
-    #카메라 실행 
+    #
     a.saveName(name, a.basic_file_path)
 
     cap = cv2.VideoCapture(0)
@@ -148,14 +147,12 @@ if __name__ =="__main__":
     model.train(np.asarray(Training_Data), IDs)
     #개인 .yml 파일 생성
     model.write('trainer/personal/'+data_path.split('/')[2]+'.yml')
-    #전체 .yml 파일 생성
-    model.write('trainer/face_train.yml')
     tp='trainer/personal'+data_path.split('/')[2]+'.yml'
     a.saveTrainName(name, tp)
     a.saveImgName(name,icount)
     print("Model Training Complete!!!!!")
 
-"""     import pymysql
+    import pymysql
 
     conn = pymysql.connect(host='', user='', password='', db='' ,charset='utf8') #DB 연결
     cur = conn.cursor(pymysql.cursors.DictCursor) #디폴트 커서 생성
@@ -164,11 +161,9 @@ if __name__ =="__main__":
     val = (name, a.basic_file_path,'trainer/personal/' + data_path.split('/')[2]+'.yml')
     cur.execute(sql, val)
     
-    conn.commit() """
-    print('rowcount: ', cur.rowcount)
-
-    conn.close() 
-
+    conn.commit()
+    conn.close()
+    
     #각 이미지 이름 및 경로에 대한 정보 파일로 저장
     with open('img_name_match.pickle','a+b') as fw:
         pickle.dump(a.img_name_match, fw)
