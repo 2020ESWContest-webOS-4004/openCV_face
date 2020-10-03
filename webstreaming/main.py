@@ -36,21 +36,6 @@ def index():
     # 웹페이지 렌더링
     return render_template('index.html')
 
-""" def get_json(l):
-    global face_id
-    with open('name.json', 'r') as json_file:
-        json_data = json.load(json_file)
-        i = 0 
-        while True:
-            try:
-                j = json_data['info'][i]
-                i = i +1
-                if j['name'] == l:
-                    face_id = j['id']
-            except IndexError:
-                break
-    return face_id """
-
 #DB 데이터 접속 및 사용자 조회
 def sqlResult(name):
     import pymysql
