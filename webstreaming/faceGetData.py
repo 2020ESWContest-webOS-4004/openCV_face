@@ -17,7 +17,7 @@ import json
 from PIL import Image
 
 #얼굴 인식용 xml 파일 
-face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
+face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_alt2.xml')
 #모델 생성 
 model = cv2.face.LBPHFaceRecognizer_create()
 

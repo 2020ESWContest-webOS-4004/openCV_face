@@ -25,7 +25,7 @@ else :
     icount = len(countfolder)
 
 #얼굴 분류기 불러오기
-face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
+face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_alt2.xml')
 ds_factor=0.6
 
 class FaceRecognition:
